@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, FormEvent } from 'react';
 import { getMessages, putMessage } from './actions';
 import { SignedIn, SignedOut } from '@clerk/nextjs';
 import Link from 'next/link';
+import { useChat } from '@hashbrownai/react'
 
 interface Message {
   _id: string;
@@ -13,29 +14,34 @@ interface Message {
 }
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { sendMessage, messages } = useChat({
+    model: 'gpt-4',
+    system: 'hashbrowns should be covered and smothered',
+    messages: [{ role: 'user', content: 'Write a short story about breakfast.' }],
+  });
+  // const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const fetchMessages = async () => {
-    try {
-      setIsLoading(true);
-      const fetchedMessages = await getMessages();
-      setMessages(fetchedMessages);
-      setError(null);
-    } catch (err) {
-      setError('Failed to load messages. Please try again.');
-      console.error('Error fetching messages:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const fetchMessages = async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     const fetchedMessages = await getMessages();
+  //     setMessages(fetchedMessages);
+  //     setError(null);
+  //   } catch (err) {
+  //     setError('Failed to load messages. Please try again.');
+  //     console.error('Error fetching messages:', err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    fetchMessages();
-  }, []);
+  // useEffect(() => {
+  //   fetchMessages();
+  // }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -48,12 +54,17 @@ export default function Home() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
+
     
     try {
       setIsLoading(true);
-      await putMessage(newMessage);
+      sendMessage({
+        role: 'user',
+        content: newMessage
+      })
+      // await putMessage(newMessage);
       setNewMessage('');
-      await fetchMessages(); // Refresh messages after sending
+      // await fetchMessages(); // Refresh messages after sending
     } catch (err) {
       setError('Failed to send message. Please try again.');
       console.error('Error sending message:', err);
@@ -123,19 +134,19 @@ export default function Home() {
                   No messages yet. Start the conversation!
                 </div>
               ) : (
-                messages.map((message) => (
-                  <div key={message._id} className="flex flex-col">
+                messages.map((message, i) => (
+                  <div key={i} className="flex flex-col">
                     <div className="flex items-end">
                       <div className="bg-blue-500 text-white rounded-lg py-2 px-4 max-w-[80%]">
-                        {message.content}
+                        {message.content as string}
                       </div>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {formatDate(message._creationTime)}
-                      </span>
+                      {/* <span className="text-xs text-gray-500 ml-2">
+                        {formatDate(message.createdAt)}
+                      </span> */}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    {/* <div className="text-xs text-gray-500 mt-1">
                       {message.author}
-                    </div>
+                    </div> */}
                   </div>
                 ))
               )}

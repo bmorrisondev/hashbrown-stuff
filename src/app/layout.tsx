@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ConvexClientProvider } from "./ConvexClientProvider";
-import { HashbrownProvider } from "@hashbrownai/react";
+import MyHashbrownProvider from "./MyHashbrownProvider";
 
 import './globals.css'
 
@@ -35,9 +35,9 @@ export default function RootLayout({
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
               <Header />
               <ConvexClientProvider>
-              <HashbrownProvider url="/api/chat">
+              <MyHashbrownProvider>
                 {children}
-              </HashbrownProvider>
+              </MyHashbrownProvider>
               </ConvexClientProvider>
           </ThemeProvider>
         </body>

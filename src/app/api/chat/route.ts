@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   (async () => {
     try {
       for await (const chunk of stream) {
-        await writer.write(new TextEncoder().encode(chunk.toString()));
+        await writer.write(chunk);
       }
     } catch (error) {
       console.error('Stream error:', error);
